@@ -30,7 +30,7 @@ async def task_loop():
         print(f'{m.content}')
 
     deleted = await channel.purge()
-    print(f'Deleted {len(deleted)} message(s)')
+    print(f'Deleted {len(deleted)} message(s) in {channel.name}')
 
 
 @bot.command()

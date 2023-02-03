@@ -9,6 +9,7 @@ handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w'
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 VOID = os.getenv('VOID_CHANNEL')
+HOLE = os.getenv('BLACKHOLE_CHANNEL')
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -25,15 +26,31 @@ async def on_ready():
 
 @tasks.loop(seconds=30)
 async def task_loop():
-    channel = bot.get_channel(int(VOID))
+    void_channel = bot.get_channel(int(VOID))
+    hole_channel = bot.get_channel(int(HOLE))
 
     # get message list
-    messages = [message async for message in channel.history(limit=999)]
-    for m in messages:
-        print(f'{m.content}')
+    # messages = [message async for message in void_channel.history(limit=999)]
+    # for m in messages:
+    #     print(f'{m.content}')
 
-    deleted = await channel.purge()
-    print(f'Deleted {len(deleted)} message(s) in {channel.name}')
+    deleted = await void_channel.purge()
+    for message in deleted:
+
+        # build an id - username dict
+        users_mentions = {}
+        for mention in message.mentions:
+            users_mentions[mention.id] = mention.name+'#'+mention.discriminator
+
+        clean_message = message.content
+
+        # convert all mentions to human-readable names (instead of raw id's)
+        for key in users_mentions:
+            clean_message = clean_message.replace(str(key), users_mentions[key])
+
+        await hole_channel.send(f'**{message.author.name}#{message.author.discriminator}** '
+                                f'posted ```{clean_message}```')
+    print(f'redirected {len(deleted)} message(s) in {void_channel.name}')
 
 
 @bot.command()

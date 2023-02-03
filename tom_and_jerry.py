@@ -1,7 +1,10 @@
 import discord
 import os
+import logging
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
+
+handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -25,7 +28,7 @@ async def task_loop():
     channel = bot.get_channel(int(VOID))
 
     # get message list
-    messages = [message async for message in channel.history(limit=123)]
+    messages = [message async for message in channel.history(limit=999)]
     for m in messages:
         print(f'{m.content}')
 
@@ -44,4 +47,4 @@ async def meets(ctx):
             resp = '\n'.join(meetup_channel_list)
             await ctx.send(resp)
 
-bot.run(TOKEN)
+bot.run(TOKEN, log_handler=handler)

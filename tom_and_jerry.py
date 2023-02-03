@@ -8,8 +8,6 @@ handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w'
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-VOID = os.getenv('VOID_CHANNEL')
-HOLE = os.getenv('BLACKHOLE_CHANNEL')
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -26,8 +24,12 @@ async def on_ready():
 
 @tasks.loop(seconds=30)
 async def task_loop():
-    void_channel = bot.get_channel(int(VOID))
-    hole_channel = bot.get_channel(int(HOLE))
+    load_dotenv()
+    void = os.getenv('VOID_CHANNEL')
+    hole = os.getenv('BLACKHOLE_CHANNEL')
+
+    void_channel = bot.get_channel(int(void))
+    hole_channel = bot.get_channel(int(hole))
 
     # get message list
     # messages = [message async for message in void_channel.history(limit=999)]
@@ -55,9 +57,12 @@ async def task_loop():
 
 @bot.command()
 async def meets(ctx):
+    load_dotenv()
+    category_string = os.getenv('CATEGORY')
+
     for category in ctx.message.guild.categories:
         meetup_channel_list = []
-        if category.name == 'MEETUPS':
+        if category.name == category_string:
             channels = category.channels
             for c in channels:
                 meetup_channel_list.append(c.name)
